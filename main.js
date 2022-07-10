@@ -41,6 +41,12 @@ let createOffer = async () => {
     }); // to add the tracks to the remote stream on when tracks area added to the peer connection
   };
 
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      console.log(event.candidate);
+    }
+  };
+
   let offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
   console.log(offer);
