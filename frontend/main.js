@@ -1,7 +1,7 @@
 let localStream;
 let remoteStream;
 
-// ice candidates here i have considered all the stun servers
+// ice servers for candidates here i have considered all the stun servers
 const servers = {
   iceServers: [
     {
@@ -41,6 +41,7 @@ let createOffer = async () => {
     }); // to add the tracks to the remote stream on when tracks area added to the peer connection
   };
 
+  // onicecandidates is event is called then we just check
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
       console.log(event.candidate);
