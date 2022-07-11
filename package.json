@@ -1,0 +1,19 @@
+{
+  "name": "videochat-using-webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/architjain2002/WebRTC-videochat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/architjain2002/WebRTC-videochat/issues"
+  },
+  "homepage": "https://github.com/architjain2002/WebRTC-videochat#readme"
+}
