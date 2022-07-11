@@ -19,5 +19,11 @@ io.sockets.on("connection", (socket) => {
     } else {
       socket.emit("full", room);
     }
+
+    // when a client sends a message
+
+    socket.on("message", (message) => {
+      socket.broadcast.to(room).emit("message", message);
+    });
   });
 });
