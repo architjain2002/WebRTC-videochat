@@ -73,7 +73,8 @@ let offerCreation = async () => {
   peerConnection.onicecandidate = async (event) => {
     console.log(event.candidate);
     if (event.candidate) {
-      socket.emit("candidate", event.candidate);
+      var message = { candidate: event.candidate };
+      socket.emit("message", room, message);
     }
   };
 
@@ -104,10 +105,15 @@ socket.on("message", async (room, message) => {
     var message = { answer: answer };
     socket.emit("message", room, message);
   }
+  // handling ice candidates passed
+  else if (message.candidate !== undefined) {
+    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    console.log(candidate);
+  }
 });
 
-// handling ice candidates passed
-socket.on("candidate", async (candidate) => {
-  await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-  console.log(candidate);
-});
+// // handling ice candidates passed
+// socket.on("candidate", async (room, candidate) => {
+//   await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+//   console.log(candidate);
+// });
