@@ -19,7 +19,7 @@ module.exports = (io) => {
     });
     // when a client sends a message
     socket.on("message", (room, message) => {
-      socket.broadcast.to(room).emit("message", message);
+      socket.broadcast.to(room).emit("message", room, message);
     });
   });
 };
