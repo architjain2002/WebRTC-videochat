@@ -27,3 +27,5 @@ io.sockets.on("connection", (socket) => {
     });
   });
 });
+
+module.exports = io;
