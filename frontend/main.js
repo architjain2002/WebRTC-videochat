@@ -87,13 +87,14 @@ let offerCreation = async () => {
 };
 
 socket.on("message", async (room, message) => {
-  if (message.answer) {
+  console.log(message);
+  if (message.answer !== undefined) {
     const remoDesc = new RTCSessionDescription(message.answer);
     await peerConnection.setRemoteDescription(remoDesc);
   }
 
   // when a client recieves an offer we first set the remote as offer and send the answer and set local as answer
-  else if (message.offer) {
+  else if (message.offer !== undefined) {
     const remoteDesc = new RTCSessionDescription(message.offer);
     await peerConnection.setRemoteDescription(remoteDesc);
 
