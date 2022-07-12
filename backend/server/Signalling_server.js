@@ -1,6 +1,7 @@
 module.exports = (io) => {
   io.sockets.on("connection", (socket) => {
     // when a client creates or joins a room in client side
+    //console.log(socket.id);
     socket.on("create or join", (room) => {
       // io.sockets.clients gives the number of connections in a room
       const numberOfClients = io.sockets.clients(room).length();
@@ -18,12 +19,10 @@ module.exports = (io) => {
       } else {
         socket.emit("full", room);
       }
-
-      // when a client sends a message
-
-      socket.on("message", (message) => {
-        socket.broadcast.to(room).emit("message", message);
-      });
+    });
+    // when a client sends a message
+    socket.on("message", (message) => {
+      socket.broadcast.to(room).emit("message", message);
     });
   });
 };
