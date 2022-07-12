@@ -26,10 +26,6 @@ socket.on("join", (room, id) => {
   console.log("socket id: " + id + " joined room: " + room);
 });
 
-
-
-
-
 let localStream;
 let remoteStream;
 
@@ -37,13 +33,13 @@ let remoteStream;
 const servers = {
   iceServers: [
     {
-      urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
+      urls: "stun:stun.l.google.com:19302",
     },
   ],
 };
 
 // to access the video and the audio streams into localstream
- let init = async () => {
+let init = async () => {
   localStream = await navigator.mediaDevices.getUserMedia({
     video: true,
     audio: false,
@@ -51,69 +47,66 @@ const servers = {
 
   document.getElementById("user-1").srcObject = localStream;
 
-  createOffer(); // to create the offer
+  offerCreation(); // to create the offer
 };
 
 init(); //invoke
 
-let createOffer = async () => {
-
+let offerCreation = async () => {
   peerConnection = new RTCPeerConnection(servers); // we create connection by passing all the ice candidates
+  console.log(peerConnection);
 
-  
-  // remoteStream = new MediaStream();
-  // document.getElementById("user-2").srcObject = remoteStream;
+  remoteStream = new MediaStream();
+  document.getElementById("user-2").srcObject = remoteStream;
 
-  // localStream.getTracks().forEach((track) => {
-  //   peerConnection.addTrack(track, localStream);
-  // }); //  to add the tracks to the peer connection
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  }); //  to add the tracks to the peer connection
 
-  // peerConnection.ontrack = (event) => {
-  //   event.streams[0].getTracks().forEach((track) => {
-  //     remoteStream.addTrack(track);
-  //   }); // to add the tracks to the remote stream on when tracks area added to the peer connection
-  // };
+  peerConnection.ontrack = (event) => {
+    event.streams[0].getTracks().forEach((track) => {
+      remoteStream.addTrack(track);
+    }); // to add the tracks to the remote stream on when tracks area added to the peer connection
+  };
 
-  // onicecandidates is event is called 
-  peerConnection.onicecandidate = (event) => {
+  // onicecandidates is event is called
+  peerConnection.onicecandidate = async (event) => {
+    console.log(event.candidate);
     if (event.candidate) {
       socket.emit("candidate", event.candidate);
     }
   };
-  
-  // to create and send the offer
-  await peerConnection.createOffer((offer)=>{
-    peerConnection.setLocalDescription(offer);
 
-    var message = {offer: offer};
-    socket.emit("message", message);
-    // console.log(offer);
-  });
+  // to create and send the offer
+  let offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+
+  var message = { offer: offer };
+  socket.emit("message", room, message);
+  console.log(offer);
 };
 
-  socket.on("message", (message) => {
-    if (message.answer) {
-      const remoDesc = new RTCSessionDescription(message.answer);
-      await peerConnection.setRemoteDescription(remoDesc);
-    }
+socket.on("message", async (room, message) => {
+  if (message.answer) {
+    const remoDesc = new RTCSessionDescription(message.answer);
+    await peerConnection.setRemoteDescription(remoDesc);
+  }
 
-    // when a client recieves an offer we first set the remote as offer and send the answer and set local as answer
-    else if (message.offer) {
-      const remoteDesc = new RTCSessionDescription(message.offer);
-      await peerConnection.setRemoteDescription(remoteDesc);
+  // when a client recieves an offer we first set the remote as offer and send the answer and set local as answer
+  else if (message.offer) {
+    const remoteDesc = new RTCSessionDescription(message.offer);
+    await peerConnection.setRemoteDescription(remoteDesc);
 
-      //to create an answer and send it.
-      await peerConnection.createAnswer((answer)=>{
-        peerConnection.setLocalDescription(answer);
-        var message = {answer: answer};
-        socket.emit("message", message);
-      });
-    }
-  });
+    //to create an answer and send it.
+    let answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    var message = { answer: answer };
+    socket.emit("message", room, message);
+  }
+});
 
-  // handling ice candidates passed
-  socket.on("candidate", (candidate) => {
-    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    console.log(candidate);
-  });
-
+// handling ice candidates passed
+socket.on("candidate", async (candidate) => {
+  await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+  console.log(candidate);
+});
