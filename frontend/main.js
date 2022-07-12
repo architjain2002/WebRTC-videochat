@@ -107,8 +107,10 @@ socket.on("message", async (room, message) => {
   }
   // handling ice candidates passed
   else if (message.candidate !== undefined) {
-    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    console.log(candidate);
+    await peerConnection.addIceCandidate(
+      new RTCIceCandidate(message.candidate)
+    );
+    console.log(message.candidate);
   }
 });
 
